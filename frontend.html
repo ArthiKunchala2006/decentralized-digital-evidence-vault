@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Decentralized Evidence Vault</title>
+<style>
+    /* --- GENERAL STYLES --- */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background: #f8f9fa;
+    }
+    header {
+        background: #007bff;
+        color: white;
+        padding: 20px;
+        text-align: center;
+    }
+    nav {
+        background: #0056b3;
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+    nav button {
+        background: none;
+        border: none;
+        color: white;
+        padding: 15px 20px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: bold;
+    }
+    nav button:hover, nav button.active {
+        background: #004080;
+        border-radius: 5px;
+    }
+    main {
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    input[type="file"], input[type="text"] {
+        width: 100%;
+        padding: 8px;
+        margin: 10px 0;
+        box-sizing: border-box;
+    }
+    button.submit-btn {
+        background: #007bff;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    button.submit-btn:hover {
+        background: #0056b3;
+    }
+    footer {
+        text-align: center;
+        padding: 10px;
+        background: #f1f1f1;
+        margin-top: 20px;
+    }
+    /* --- HIDE SECTIONS --- */
+    section {
+        display: none;
+    }
+    section.active {
+        display: block;
+    }
+    img.qr {
+        margin-top: 10px;
+        max-width: 200px;
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Decentralized Evidence Vault</h1>
+</header>
+
+<nav>
+    <button class="tab-btn active" data-tab="home">Home</button>
+    <button class="tab-btn" data-tab="upload">Upload File</button>
+    <button class="tab-btn" data-tab="verify">Verify File</button>
+</nav>
+
+<main>
+    <!-- HOME SECTION -->
+    <section id="home" class="active">
+        <h2>Welcome!</h2>
+        <p>Use this platform to securely upload and verify your evidence on the blockchain.</p>
+        <p>Navigate using the buttons above to upload a file or verify an existing one.</p>
+    </section>
+
+    <!-- UPLOAD SECTION -->
+    <section id="upload">
+        <h2>Upload File</h2>
+        <form id="uploadForm">
+            <label>Select File:</label>
+            <input type="file" id="uploadFile" required>
+            <button type="submit" class="submit-btn">Upload</button>
+        </form>
+        <div id="uploadResult"></div>
+    </section>
+
+    <!-- VERIFY SECTION -->
+    <section id="verify">
+        <h2>Verify File</h2>
+        <form id="verifyForm">
+            <label>Select File:</label>
+            <input type="file" id="verifyFile" required>
+            <label>Transaction ID:</label>
+            <input type="text" id="txid" placeholder="Enter Transaction ID" required>
+            <button type="submit" class="submit-btn">Verify</button>
+        </form>
+        <div id="verifyResult"></div>
+    </section>
+</main>
+
+<footer>
+    <p>© 2026 Decentralized Evidence Vault</p>
+</footer>
+
+<script>
+    // --- TAB NAVIGATION ---
+    const tabs = document.querySelectorAll('.tab-btn');
+    const sections = document.querySelectorAll('main section');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            sections.forEach(s => s.classList.remove('active'));
+            document.getElementById(tab.dataset.tab).classList.add('active');
+        });
+    });
+
+    // --- UPLOAD FORM ---
+    const uploadForm = document.getElementById('uploadForm');
+    const uploadResult = document.getElementById('uploadResult');
+
+    uploadForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const file = document.getElementById('uploadFile').files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            // Simulate hash generation & QR code
+            const hash = btoa(reader.result).substring(0, 20);
+            const txid = 'TX' + Math.floor(Math.random()*1000000);
+            const qr = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${txid}`;
+
+            uploadResult.innerHTML = `
+                <p><strong>File Uploaded!</strong></p>
+                <p>Hash: ${hash}</p>
+                <p>Transaction ID: ${txid}</p>
+                <p><img src="${qr}" class="qr" alt="QR Code"></p>
+            `;
+        };
+        reader.readAsBinaryString(file);
+    });
+
+    // --- VERIFY FORM ---
+    const verifyForm = document.getElementById('verifyForm');
+    const verifyResult = document.getElementById('verifyResult');
+
+    verifyForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const file = document.getElementById('verifyFile').files[0];
+        const txid = document.getElementById('txid').value.trim();
+        if (!file || !txid) return;
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            const hash = btoa(reader.result).substring(0, 20);
+
+            // Simulate verification (50% chance success)
+            const verified = Math.random() > 0.5;
+            verifyResult.innerHTML = `
+                <p><strong>Verification ${verified ? 'Successful ✅' : 'Failed ❌'}</strong></p>
+                <p>Hash: ${hash}</p>
+                <p>Transaction ID: ${txid}</p>
+            `;
+        };
+        reader.readAsBinaryString(file);
+    });
+</script>
+
+</body>
+</html>
